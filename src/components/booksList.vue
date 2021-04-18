@@ -20,12 +20,12 @@
       </div>
     </div>
     <div class="col-md-6">
-      <h4>Tutorials List</h4>
+      <h4>Books</h4>
       <ul class="list-group">
         <li
           class="list-group-item"
           :class="{ active: index == currentIndex }"
-          v-for="(tutorial, index) in tutorials"
+          v-for="(tutorial, index) in books"
           :key="index"
           @click="setActiveTutorial(tutorial, index)"
         >
@@ -38,30 +38,41 @@
       </button>
     </div>
     <div class="col-md-6">
-      <div v-if="currentTutorial">
-        <h4>Tutorial</h4>
+      <div v-if="currentBook">
+        <h4>Book Details</h4>
         <div>
-          <label><strong>Title:</strong></label> {{ currentTutorial.title }}
+          <label><strong>Book id:</strong></label> {{ currentBook.book_id }}
         </div>
         <div>
-          <label><strong>Description:</strong></label>
-          {{ currentTutorial.description }}
+          <label><strong>Title:</strong></label> {{ currentBook.title }}
         </div>
         <div>
-          <label><strong>Status:</strong></label>
-          {{ currentTutorial.published ? "Published" : "Pending" }}
+          <label><strong>Author:</strong></label>
+          {{ currentBook.author }}
+        </div>
+        <div>
+          <label><strong>Category:</strong></label>
+          {{ currentBook.category }}
+        </div>
+        <div>
+          <label><strong>Type:</strong></label>
+          {{ currentBook.type }}
+        </div>
+        <div>
+          <label><strong>Available:</strong></label>
+          {{ currentBook.available ? "Available" : "Not available" }}
         </div>
 
         <a
           class="badge badge-warning"
-          :href="'/tutorials/' + currentTutorial.id"
+          :href="'/books/' + currentBook.id"
         >
           Edit
         </a>
       </div>
       <div v-else>
         <br />
-        <p>Please click on a Tutorial...</p>
+        <p>Please select a book to see details...</p>
       </div>
     </div>
   </div>
@@ -73,15 +84,15 @@ import TutorialDataService from "../services/bookDataService";
 
 @Component
 export default class TutorialsList extends Vue {
-  private tutorials: any[] = [];
-  private currentTutorial: any = null;
+  private books: any[] = [];
+  private currentBook: any = null;
   private currentIndex = -1;
   private title = "";
 
   retrieveTutorials() {
     TutorialDataService.getAll()
       .then((response) => {
-        this.tutorials = response.data;
+        this.books = response.data;
         console.log(response.data);
       })
       .catch((e) => {
@@ -91,12 +102,12 @@ export default class TutorialsList extends Vue {
 
   refreshList() {
     this.retrieveTutorials();
-    this.currentTutorial = null;
+    this.currentBook = null;
     this.currentIndex = -1;
   }
 
   setActiveTutorial(tutorial: any, index: number) {
-    this.currentTutorial = tutorial;
+    this.currentBook = tutorial;
     this.currentIndex = index;
   }
 
@@ -114,7 +125,7 @@ export default class TutorialsList extends Vue {
   searchTitle() {
     TutorialDataService.findByTitle(this.title)
       .then((response) => {
-        this.tutorials = response.data;
+        this.books = response.data;
         console.log(response.data);
       })
       .catch((e) => {

@@ -1,76 +1,114 @@
 <template>
-    <div v-if="currentTutorial" class="edit-form">
-        <h4>Tutorial</h4>
+    <div v-if="currentBook" class="edit-form">
+        <h4>Book</h4>
         <form>
             <div class="form-group">
                 <label for="title">Title</label>
-                <input
-                        type="text"
-                        class="form-control"
-                        id="title"
-                        v-model="currentTutorial.title"
-                />
-            </div>
-            <div class="form-group">
-                <label for="description">Description</label>
-                <input
-                        type="text"
-                        class="form-control"
-                        id="description"
-                        v-model="currentTutorial.description"
+                <input class="form-control"
+                       id="title"
+                       name="title"
+                       required
+                       type="text"
+                       v-model="currentBook.title"
                 />
             </div>
 
             <div class="form-group">
-                <label><strong>Status:</strong></label>
-                {{ currentTutorial.published ? "Published" : "Pending" }}
+                <label for="book-id">Book id</label>
+                <input class="form-control"
+                       id="book-id"
+                       name="book-id"
+                       required
+                       v-model="currentBook.book_id"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="author">Author</label>
+                <input class="form-control"
+                       id="author"
+                       name="author"
+                       required
+                       v-model="currentBook.author"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="category">Category</label>
+                <input class="form-control"
+                       id="category"
+                       name="category"
+                       required
+                       v-model="currentBook.category"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="type">Reference</label>
+                <input class="form-control"
+                       type="checkbox"
+                       id="type"
+                       name="type"
+                       required
+                       v-model="currentBook.reference"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="available">Available</label>
+                <input class="form-control"
+                       type="checkbox"
+                       id="available"
+                       name="available"
+                       v-model="currentBook.available"
+                />
             </div>
         </form>
 
-        <button
-                class="badge badge-primary mr-2"
-                v-if="currentTutorial.published"
-                @click="updatePublished(false)"
-        >
-            UnPublish
-        </button>
-        <button
-                v-else
-                class="badge badge-primary mr-2"
-                @click="updatePublished(true)"
-        >
-            Publish
-        </button>
+<!--        <button-->
+<!--                class="badge badge-primary mr-2"-->
+<!--                v-if="currentBook.available"-->
+<!--                @click="updatePublished(false)"-->
+<!--        >-->
+<!--            Set as unavailable-->
+<!--        </button>-->
+<!--        <button-->
+<!--                v-else-->
+<!--                class="badge badge-primary mr-2"-->
+<!--                @click="updatePublished(true)"-->
+<!--        >-->
+<!--            Set as available-->
+<!--        </button>-->
 
-        <button class="badge badge-danger mr-2" @click="deleteTutorial">
-            Delete
-        </button>
+<!--        <button class="badge badge-danger mr-2" @click="deleteBook">-->
+<!--            Delete book-->
+<!--        </button>-->
 
-        <button type="submit" class="badge badge-success" @click="updateTutorial">
-            Update
+        <button type="submit" class="badge badge-success" @click="updateBook">
+            Update details
         </button>
-        <p>{{ message }}</p>
+        <p style="color: green">{{ message }}</p>
     </div>
 
     <div v-else>
         <br />
-        <p>Please click on a Tutorial...</p>
+        <p>Please select a Book...</p>
     </div>
 </template>
 
 <script lang="ts">
     import { Component, Vue } from "vue-property-decorator";
-    import TutorialDataService from "../services/bookDataService";
+    import BookDataService from "../services/bookDataService";
 
     @Component
-    export default class Tutorial extends Vue {
-        private currentTutorial: any = null;
+    export default class Book extends Vue {
+        private currentBook: any = null;
         private message = "";
 
-        getTutorial(id: string) {
-            TutorialDataService.get(id)
+        getBook(id: string) {
+            BookDataService.get(id)
                 .then((response) => {
-                    this.currentTutorial = response.data;
+                    this.currentBook = response.data;
                     console.log(response.data);
                 })
                 .catch((e) => {
@@ -79,16 +117,18 @@
         }
 
         updatePublished(status: boolean) {
-            var data = {
-                id: this.currentTutorial.id,
-                title: this.currentTutorial.title,
-                description: this.currentTutorial.description,
-                published: status,
+            const data = {
+                title: this.currentBook.title,
+                book_id: this.currentBook.book_id,
+                author: this.currentBook.author,
+                category: this.currentBook.category,
+                type: this.currentBook.reference ? "reference": "general",
+                available: this.currentBook.available
             };
 
-            TutorialDataService.update(this.currentTutorial.id, data)
+            BookDataService.update(this.currentBook.id, data)
                 .then((response) => {
-                    this.currentTutorial.published = status;
+                    this.currentBook.published = status;
                     console.log(response.data);
                 })
                 .catch((e) => {
@@ -96,22 +136,25 @@
                 });
         }
 
-        updateTutorial() {
-            TutorialDataService.update(this.currentTutorial.id, this.currentTutorial)
+        updateBook() {
+            BookDataService.update(this.currentBook.id, this.currentBook)
                 .then((response) => {
                     console.log(response.data);
-                    this.message = "The tutorial was updated successfully!";
+                    setTimeout(() => {
+                        this.$router.push('/');
+                    }, 2000);
+                    this.message = "The book was updated successfully!";
                 })
                 .catch((e) => {
                     console.log(e);
                 });
         }
 
-        deleteTutorial() {
-            TutorialDataService.delete(this.currentTutorial.id)
+        deleteBook() {
+            BookDataService.delete(this.currentBook.id)
                 .then((response) => {
                     console.log(response.data);
-                    this.$router.push({ name: "tutorials" });
+                    this.$router.push({ name: "books" });
                 })
                 .catch((e) => {
                     console.log(e);
@@ -120,7 +163,7 @@
 
         mounted() {
             this.message = "";
-            this.getTutorial(this.$route.params.id);
+            this.getBook(this.$route.params.id);
         }
     }
 </script>
