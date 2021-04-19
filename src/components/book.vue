@@ -1,5 +1,5 @@
 <template>
-    <div v-if="currentBook" class="edit-form">
+    <div class="edit-form" v-if="currentBook">
         <h4>Book</h4>
         <form>
             <div class="form-group">
@@ -46,10 +46,10 @@
             <div class="form-group">
                 <label for="type">Reference</label>
                 <input class="form-control"
-                       type="checkbox"
                        id="type"
                        name="type"
                        required
+                       type="checkbox"
                        v-model="currentBook.reference"
                 />
             </div>
@@ -57,47 +57,27 @@
             <div class="form-group">
                 <label for="available">Available</label>
                 <input class="form-control"
-                       type="checkbox"
                        id="available"
                        name="available"
+                       type="checkbox"
                        v-model="currentBook.available"
                 />
             </div>
         </form>
-
-<!--        <button-->
-<!--                class="badge badge-primary mr-2"-->
-<!--                v-if="currentBook.available"-->
-<!--                @click="updatePublished(false)"-->
-<!--        >-->
-<!--            Set as unavailable-->
-<!--        </button>-->
-<!--        <button-->
-<!--                v-else-->
-<!--                class="badge badge-primary mr-2"-->
-<!--                @click="updatePublished(true)"-->
-<!--        >-->
-<!--            Set as available-->
-<!--        </button>-->
-
-<!--        <button class="badge badge-danger mr-2" @click="deleteBook">-->
-<!--            Delete book-->
-<!--        </button>-->
-
-        <button type="submit" class="badge badge-success" @click="updateBook">
+        <button @click="updateBook" class="badge badge-success" type="submit">
             Update details
         </button>
         <p style="color: green">{{ message }}</p>
     </div>
 
     <div v-else>
-        <br />
+        <br/>
         <p>Please select a Book...</p>
     </div>
 </template>
 
 <script lang="ts">
-    import { Component, Vue } from "vue-property-decorator";
+    import {Component, Vue} from "vue-property-decorator";
     import BookDataService from "../services/bookDataService";
 
     @Component
@@ -122,7 +102,7 @@
                 book_id: this.currentBook.book_id,
                 author: this.currentBook.author,
                 category: this.currentBook.category,
-                type: this.currentBook.reference ? "reference": "general",
+                type: this.currentBook.reference ? "reference" : "general",
                 available: this.currentBook.available
             };
 
@@ -154,7 +134,7 @@
             BookDataService.delete(this.currentBook.id)
                 .then((response) => {
                     console.log(response.data);
-                    this.$router.push({ name: "books" });
+                    this.$router.push({name: "books"});
                 })
                 .catch((e) => {
                     console.log(e);
@@ -172,5 +152,12 @@
     .edit-form {
         max-width: 300px;
         margin: auto;
+    }
+
+    #type, #available {
+        box-shadow: none;
+        width: 10%;
+        margin-left: auto;
+        margin-right: auto;
     }
 </style>

@@ -126,4 +126,11 @@
         max-width: 300px;
         margin: auto;
     }
+
+    #type, #available {
+        box-shadow: none;
+        width: 10%;
+        margin-left: auto;
+        margin-right: auto;
+    }
 </style>

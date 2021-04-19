@@ -1,148 +1,154 @@
 <template>
-  <div class="list row">
-    <div class="col-md-8">
-      <div class="input-group mb-3">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Search by title"
-          v-model="title"
-        />
-        <div class="input-group-append">
-          <button
-            class="btn btn-outline-secondary"
-            type="button"
-            @click="searchTitle"
-          >
-            Search
-          </button>
+    <div class="list row">
+        <div class="col-md-8">
+            <div class="input-group mb-3">
+                <input
+                        class="form-control"
+                        placeholder="Search..."
+                        type="text"
+                        v-model="title"
+                />
+            </div>
         </div>
-      </div>
-    </div>
-    <div class="col-md-6">
-      <h4>Books</h4>
-      <ul class="list-group">
-        <li
-          class="list-group-item"
-          :class="{ active: index == currentIndex }"
-          v-for="(tutorial, index) in books"
-          :key="index"
-          @click="setActiveTutorial(tutorial, index)"
-        >
-          {{ tutorial.title }}
-        </li>
-      </ul>
+        <div class="col-md-6">
+            <h4>Books</h4>
+            <ul class="list-group" v-if="booksLengthCheck">
+                <li
+                        :class="{ active: index == currentIndex }"
+                        :key="index"
+                        @click="setActiveTutorial(tutorial, index)"
+                        class="list-group-item"
+                        v-for="(tutorial, index) in booksData"
+                >
+                    {{ tutorial.title }}
+                </li>
+            </ul>
 
-      <button class="m-3 btn btn-sm btn-danger" @click="removeAllTutorials">
-        Remove All
-      </button>
-    </div>
-    <div class="col-md-6">
-      <div v-if="currentBook">
-        <h4>Book Details</h4>
-        <div>
-          <label><strong>Book id:</strong></label> {{ currentBook.book_id }}
+            <div class="mt-3" v-else>
+                No books found with your current search.
+            </div>
         </div>
-        <div>
-          <label><strong>Title:</strong></label> {{ currentBook.title }}
-        </div>
-        <div>
-          <label><strong>Author:</strong></label>
-          {{ currentBook.author }}
-        </div>
-        <div>
-          <label><strong>Category:</strong></label>
-          {{ currentBook.category }}
-        </div>
-        <div>
-          <label><strong>Type:</strong></label>
-          {{ currentBook.type }}
-        </div>
-        <div>
-          <label><strong>Available:</strong></label>
-          {{ currentBook.available ? "Available" : "Not available" }}
-        </div>
+        <div class="col-md-6">
+            <div class="mt-4" v-if="currentBook">
+                <h4 style="font-size: 1.4em">Book Details</h4>
+                <div class="mt-2 ml-2">
+                    <label><strong>Book id:</strong></label> {{ currentBook.book_id }}
+                </div>
+                <div class="ml-2">
+                    <label><strong>Title:</strong></label> {{ currentBook.title }}
+                </div>
+                <div class="ml-2">
+                    <label><strong>Author:</strong></label>
+                    {{ currentBook.author }}
+                </div>
+                <div class="ml-2">
+                    <label><strong>Category:</strong></label>
+                    {{ currentBook.category }}
+                </div>
+                <div class="ml-2">
+                    <label><strong>Type:</strong></label>
+                    {{ currentBook.type }}
+                </div>
+                <div class="ml-2">
+                    <label><strong>Available:</strong></label>
+                    {{ currentBook.available ? "Available" : "Not available" }}
+                </div>
 
-        <a
-          class="badge badge-warning"
-          :href="'/books/' + currentBook.id"
-        >
-          Edit
-        </a>
-      </div>
-      <div v-else>
-        <br />
-        <p>Please select a book to see details...</p>
-      </div>
+                <a :href="'/books/' + currentBook.id"
+                   class="badge badge-warning ml-2"
+                >
+                    Edit
+                </a>
+            </div>
+            <div v-else>
+                <br/>
+                <p v-if="booksLengthCheck">
+                    Please select a book to see details...
+                </p>
+            </div>
+        </div>
     </div>
-  </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import TutorialDataService from "../services/bookDataService";
+    import {Component, Vue} from "vue-property-decorator";
+    import TutorialDataService from "../services/bookDataService";
 
-@Component
-export default class TutorialsList extends Vue {
-  private books: any[] = [];
-  private currentBook: any = null;
-  private currentIndex = -1;
-  private title = "";
+    @Component
+    export default class TutorialsList extends Vue {
+        private books: any[] = [];
+        private currentBook: any = null;
+        private currentIndex = -1;
+        private title = "";
 
-  retrieveTutorials() {
-    TutorialDataService.getAll()
-      .then((response) => {
-        this.books = response.data;
-        console.log(response.data);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-  }
+        get booksLengthCheck() {
+            return this.booksData && this.booksData.length > 0;
+        }
 
-  refreshList() {
-    this.retrieveTutorials();
-    this.currentBook = null;
-    this.currentIndex = -1;
-  }
+        // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+        get booksData() {
+            return this.books && this.books.length > 0 ?
+                this.books.filter(book => {
+                    return (book || {}).title.toLowerCase().includes(this.title) ||
+                        (book || {}).book_id.toLowerCase().includes(this.title) ||
+                        (book || {}).author.toLowerCase().includes(this.title);
+                }) : []
+        }
 
-  setActiveTutorial(tutorial: any, index: number) {
-    this.currentBook = tutorial;
-    this.currentIndex = index;
-  }
+        retrieveTutorials() {
+            TutorialDataService.getAll()
+                .then((response) => {
+                    this.books = response.data;
+                    console.log(response.data);
+                })
+                .catch((e) => {
+                    console.log(e);
+                });
+        }
 
-  removeAllTutorials() {
-    TutorialDataService.deleteAll()
-      .then((response) => {
-        console.log(response.data);
-        this.refreshList();
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-  }
+        refreshList() {
+            this.retrieveTutorials();
+            this.currentBook = null;
+            this.currentIndex = -1;
+        }
 
-  searchTitle() {
-    TutorialDataService.findByTitle(this.title)
-      .then((response) => {
-        this.books = response.data;
-        console.log(response.data);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-  }
+        setActiveTutorial(tutorial: any, index: number) {
+            this.currentBook = tutorial;
+            this.currentIndex = index;
+        }
 
-  mounted() {
-    this.retrieveTutorials();
-  }
-}
+        removeAllTutorials() {
+            TutorialDataService.deleteAll()
+                .then((response) => {
+                    console.log(response.data);
+                    this.refreshList();
+                })
+                .catch((e) => {
+                    console.log(e);
+                });
+        }
+
+        searchTitle() {
+            TutorialDataService.findByTitle(this.title)
+                .then((response) => {
+                    this.books = response.data;
+                    console.log(response.data);
+                })
+                .catch((e) => {
+                    console.log(e);
+                });
+        }
+
+        mounted() {
+            this.retrieveTutorials();
+        }
+    }
 </script>
 
 <style scoped>
-.list {
-  text-align: left;
-  max-width: 750px;
-  margin: auto;
-}
+    .list {
+        text-align: left;
+        max-width: 750px;
+        margin: auto;
+    }
 </style>
