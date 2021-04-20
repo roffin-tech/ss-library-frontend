@@ -89,9 +89,9 @@
         get booksData() {
             return this.books && this.books.length > 0 ?
                 this.books.filter(book => {
-                    return (book || {}).title.toLowerCase().includes(this.title) ||
-                        (book || {}).book_id.toLowerCase().includes(this.title) ||
-                        (book || {}).author.toLowerCase().includes(this.title);
+                    return (book || {}).title.toLowerCase().includes(this.title.toLowerCase()) ||
+                        (book || {}).book_id.toLowerCase().includes(this.title.toLowerCase()) ||
+                        (book || {}).author.toLowerCase().includes(this.title.toLowerCase());
                 }) : []
         }
 

@@ -35,12 +35,15 @@
 
             <div class="form-group">
                 <label for="category">Category</label>
-                <input class="form-control"
-                       id="category"
-                       name="category"
-                       required
-                       v-model="currentBook.category"
-                />
+                <select class="form-control"
+                        id="category"
+                        name="category"
+                        required
+                        v-model="currentBook.category"
+                >
+                    <option value=null hidden>Select category...</option>
+                    <option v-for="(category, index) in categoryList" :value=category.id :key="index">{{category.value}}</option>
+                </select>
             </div>
 
             <div class="form-group">
@@ -84,31 +87,16 @@
     export default class Book extends Vue {
         private currentBook: any = null;
         private message = "";
+        public categoryList: any = [
+            { id: 'inspirational', value: 'Inspirational'},
+            {value: `Saint's Profile`, id: 'saintsprofile'},
+            {value: `General`, id: 'general'}
+        ]
 
         getBook(id: string) {
             BookDataService.get(id)
                 .then((response) => {
                     this.currentBook = response.data;
-                    console.log(response.data);
-                })
-                .catch((e) => {
-                    console.log(e);
-                });
-        }
-
-        updatePublished(status: boolean) {
-            const data = {
-                title: this.currentBook.title,
-                book_id: this.currentBook.book_id,
-                author: this.currentBook.author,
-                category: this.currentBook.category,
-                type: this.currentBook.reference ? "reference" : "general",
-                available: this.currentBook.available
-            };
-
-            BookDataService.update(this.currentBook.id, data)
-                .then((response) => {
-                    this.currentBook.published = status;
                     console.log(response.data);
                 })
                 .catch((e) => {

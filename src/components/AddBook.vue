@@ -34,12 +34,15 @@
 
             <div class="form-group">
                 <label for="category">Category</label>
-                <input class="form-control"
+                <select class="form-control"
                        id="category"
                        name="category"
                        required
                        v-model="book.category"
-                />
+                >
+                    <option value=null hidden>Select category...</option>
+                    <option v-for="(category, index) in categoryList" :value=category.id :key="index">{{category.value}}</option>
+                </select>
             </div>
 
             <div class="form-group">
@@ -86,9 +89,15 @@
             book_id: "",
             author: "",
             reference: false,
-            category: "",
+            category: null,
             available: true
         };
+
+        public categoryList: any = [
+            { id: 'inspirational', value: 'Inspirational'},
+            {value: `Saint's Profile`, id: 'saintsprofile'},
+            {value: `General`, id: 'general'}
+        ]
 
         private submitted = false;
 
